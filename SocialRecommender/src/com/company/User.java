@@ -8,6 +8,10 @@ import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
 
@@ -26,13 +30,35 @@ public class User extends Agent {
         this.recommendationOntology = RecommendationOntology.getInstance();
         getContentManager().registerOntology(recommendationOntology);
 
-        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST)));
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("recommendation");
+        template.addServices(sd);
+
+        AID recommender = null;
+        try {
+            DFAgentDescription[] result = DFService.search(this, template);
+            if (result.length > 0) {
+                recommender = result[0].getName();
+            } else {
+                System.out.println("No recommender registered");
+                return;
+            }
+        } catch(FIPAException fe) {
+            fe.printStackTrace();
+        }
+
+        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender));
     }
 
-    class UserBehaviour extends AchieveREInitiator {
 
-        public UserBehaviour(Agent a, ACLMessage msg) {
+
+    class UserBehaviour extends AchieveREInitiator {
+        private AID recommender;
+
+        public UserBehaviour(Agent a, ACLMessage msg, AID recommender) {
             super(a, msg);
+            this.recommender = recommender;
         }
 
         protected Vector<ACLMessage> prepareRequests(ACLMessage msg) {
@@ -42,12 +68,10 @@ public class User extends Agent {
 
             msg.setLanguage(codec.getName());
             msg.setOntology(recommendationOntology.getName());
-
-            AID to = new AID("recommender", false);
-            msg.addReceiver(to);
+            msg.addReceiver(recommender);
 
             RequestItems sae = new RequestItems(1);
-            Action action = new Action(to, sae);
+            Action action = new Action(recommender, sae);
 
             try {
                 getContentManager().fillContent(msg, action);
@@ -77,9 +101,9 @@ public class User extends Agent {
                     // Print Recommendations
                     System.out.println("Recommendations:");
 
-                    for (Recommendation recommendation: recommendations.recommendations) {
-                        System.out.println("user_id: " + recommendation.user_id + ", item_id: "
-                                + recommendation.item_id + ", rating: " + recommendation.rating);
+                    for (Recommendation recommendation: recommendations.getRecommendations()) {
+                        System.out.println("user_id: " + recommendation.getUser_id() + ", item_id: "
+                                + recommendation.getItem_id() + ", rating: " + recommendation.getRating());
                     }
                 } else if(ce instanceof Items) {
                     Items items = (Items) ce;

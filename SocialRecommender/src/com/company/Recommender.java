@@ -8,6 +8,10 @@ import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREResponder;
@@ -33,9 +37,30 @@ public class Recommender extends Agent {
             // Parse args
         }
 
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("recommendation");
+        sd.setName(getLocalName());
+
+        dfd.addServices(sd);
+        try {
+            DFService.register(this, dfd);
+        } catch(FIPAException fe) {
+            fe.printStackTrace();
+        }
+
         MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchOntology(recommendationOntology.getName()),
                 MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
         addBehaviour(new RecommenderBehaviour(this, mt));
+    }
+
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch(FIPAException e) {
+            e.printStackTrace();
+        }
     }
 
     class RecommenderBehaviour extends AchieveREResponder {
@@ -63,7 +88,7 @@ public class Recommender extends Agent {
                     AgentAction action = (AgentAction) ((Action) ce).getAction();
                     if(action instanceof RequestRecommendations) {
                         RequestRecommendations rr = (RequestRecommendations) action;
-                        List<Recommendation> listRecommendations = getRecommendations(rr.user_id);
+                        List<Recommendation> listRecommendations = getRecommendations(rr.getUser_id());
                         Recommendations recommendations = new Recommendations(listRecommendations);
 
                         result.setPerformative(ACLMessage.INFORM);
@@ -77,9 +102,9 @@ public class Recommender extends Agent {
                         }
                     } else if (action instanceof RequestItems) {
                         RequestItems ri = (RequestItems) action;
-                        List<Integer> listItems = getItemsNotRated(ri.user_id);
+                        List<Integer> listItems = getItemsNotRated(ri.getUser_id());
                         Items items = new Items(listItems);
-                        items.items.add(1);
+                        items.getItems().add(1);
 
                         result.setPerformative(ACLMessage.INFORM);
 
@@ -92,7 +117,7 @@ public class Recommender extends Agent {
                         }
                     } else if (action instanceof RateItem) {
                         RateItem ri = (RateItem) action;
-                        rate(ri.user_id, ri.item_id, ri.rating);
+                        rate(ri.getUser_id(), ri.getItem_id(), ri.getRating());
 
                         result.setPerformative(ACLMessage.INFORM);
 
