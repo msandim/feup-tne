@@ -1,0 +1,2 @@
+Dataset: .\Datasets\FilmTrust\ratings.txt
+With Setup: cv -k 5 -p on --test-view all --rand-seed 1

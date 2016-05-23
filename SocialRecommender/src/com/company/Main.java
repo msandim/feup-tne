@@ -1,8 +1,6 @@
 package com.company;
 
-import com.company.Lib;
 import happy.coding.io.Logs;
-import happy.coding.system.Systems;
 import librec.main.LibRec;
 
 public class Main {
@@ -14,12 +12,12 @@ public class Main {
             Logs.config("log4j.xml", true);
 
             // config recommender
-            String configFile = "librec.conf";
+            String configFile = "config\\AR.conf";
 
             // run algorithm
             Lib lib = new Lib();
             lib.setConfigFiles(configFile);
-            lib.executeLibRec(args);
+            lib.executeLib(args);
         } catch(Exception ex) {
             System.err.println(ex.toString());
         }

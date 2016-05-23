@@ -4,8 +4,7 @@ import librec.main.LibRec;
 
 public class Lib extends LibRec {
 
-    public void executeLibRec(String[] args) throws Exception {
+    public void executeLib(String[] args) throws Exception {
         execute(args);
     }
-
 }
