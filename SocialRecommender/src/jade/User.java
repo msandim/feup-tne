@@ -1,4 +1,4 @@
-package com.company;
+package jade;
 
 import jade.content.ContentElement;
 import jade.content.lang.Codec;
@@ -13,7 +13,12 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import jade.ontology.RecommendationOntology;
+import jade.predicates.Items;
+import jade.predicates.Recommendation;
+import jade.predicates.Recommendations;
 import jade.proto.AchieveREInitiator;
+import jade.services.RequestItems;
 
 import java.util.Vector;
 

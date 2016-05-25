@@ -1,4 +1,4 @@
-package com.company;
+package jade.predicates;
 
 public class Recommendation {
     private int user_id;

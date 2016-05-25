@@ -1,4 +1,4 @@
-package com.company;
+package recommender;
 
 import librec.main.LibRec;
 

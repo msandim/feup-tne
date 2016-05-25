@@ -1,5 +1,6 @@
-package com.company;
+package jade.predicates;
 
+import jade.predicates.Recommendation;
 import jade.content.Predicate;
 
 import java.util.List;

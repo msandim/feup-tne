@@ -1,13 +1,13 @@
-package com.company;
+package jade.services;
 
 import jade.content.AgentAction;
 
-public class RequestRecommendations implements AgentAction {
+public class RequestRecommendation implements AgentAction {
     private int user_id;
 
-    public RequestRecommendations() { }
+    public RequestRecommendation() { }
 
-    public RequestRecommendations(int user_id) {
+    public RequestRecommendation(int user_id) {
         this.user_id = user_id;
     }
 

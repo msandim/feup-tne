@@ -1,4 +1,4 @@
-package com.company;
+package jade.services;
 
 import jade.content.AgentAction;
 

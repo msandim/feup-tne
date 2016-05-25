@@ -1,4 +1,4 @@
-package com.company;
+package jade.predicates;
 
 import jade.content.Predicate;
 import java.util.List;

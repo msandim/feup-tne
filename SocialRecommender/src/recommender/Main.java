@@ -1,7 +1,6 @@
-package com.company;
+package recommender;
 
 import happy.coding.io.Logs;
-import librec.main.LibRec;
 
 public class Main {
 

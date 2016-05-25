@@ -1,4 +1,4 @@
-package com.company;
+package jade;
 
 import jade.content.AgentAction;
 import jade.content.ContentElement;
@@ -14,7 +14,14 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.ontology.RecommendationOntology;
+import jade.predicates.Items;
+import jade.predicates.Recommendation;
+import jade.predicates.Recommendations;
 import jade.proto.AchieveREResponder;
+import jade.services.RateItem;
+import jade.services.RequestItems;
+import jade.services.RequestRecommendation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +93,8 @@ public class Recommender extends Agent {
 
                 if(ce instanceof Action) {
                     AgentAction action = (AgentAction) ((Action) ce).getAction();
-                    if(action instanceof RequestRecommendations) {
-                        RequestRecommendations rr = (RequestRecommendations) action;
+                    if(action instanceof RequestRecommendation) {
+                        RequestRecommendation rr = (RequestRecommendation) action;
                         List<Recommendation> listRecommendations = getRecommendations(rr.getUser_id());
                         Recommendations recommendations = new Recommendations(listRecommendations);
 

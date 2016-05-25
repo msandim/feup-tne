@@ -1,4 +1,4 @@
-package com.company;
+package jade.ontology;
 
 import jade.content.onto.BeanOntology;
 import jade.content.onto.BeanOntologyException;
