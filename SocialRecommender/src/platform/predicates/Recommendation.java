@@ -1,4 +1,4 @@
-package jade.predicates;
+package platform.predicates;
 
 public class Recommendation {
     private int user_id;

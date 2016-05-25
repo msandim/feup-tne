@@ -1,6 +1,5 @@
-package jade.predicates;
+package platform.predicates;
 
-import jade.predicates.Recommendation;
 import jade.content.Predicate;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package jade.services;
+package platform.services;
 
 import jade.content.AgentAction;
 

@@ -11,7 +11,7 @@ public class Main {
             Logs.config("log4j.xml", true);
 
             // config recommender
-            String configFile = "config\\AR.conf";
+            String configFile = "config\\SVD++.conf";
 
             // run algorithm
             Lib lib = new Lib();

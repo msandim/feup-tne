@@ -1,4 +1,4 @@
-package jade.ontology;
+package platform.ontology;
 
 import jade.content.onto.BeanOntology;
 import jade.content.onto.BeanOntologyException;
@@ -21,9 +21,14 @@ public class RecommendationOntology extends BeanOntology {
         super(ONTOLOGY_NAME);
 
         try {
-            // add all Concept, Predicate and AgentAction in the current package
-            add(this.getClass().getPackage().getName());
-
+            // Predicate
+            add(platform.predicates.Items.class);
+            add(platform.predicates.Recommendations.class);
+            // AgentAction
+            add(platform.services.ChangeTrust.class);
+            add(platform.services.RateItem.class);
+            add(platform.services.RequestItems.class);
+            add(platform.services.RequestRecommendation.class);
         } catch(BeanOntologyException boe) {
             boe.printStackTrace();
         }

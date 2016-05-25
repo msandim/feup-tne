@@ -1,4 +1,4 @@
-package jade;
+package platform;
 
 import jade.content.AgentAction;
 import jade.content.ContentElement;
@@ -7,21 +7,28 @@ import jade.content.lang.sl.SLCodec;
 import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
+import jade.core.AID;
 import jade.core.Agent;
+import jade.core.Profile;
+import jade.core.ProfileImpl;
+import jade.core.Runtime;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.ontology.RecommendationOntology;
-import jade.predicates.Items;
-import jade.predicates.Recommendation;
-import jade.predicates.Recommendations;
+import jade.wrapper.AgentController;
+import jade.wrapper.ContainerController;
+import platform.ontology.RecommendationOntology;
+import platform.predicates.Items;
+import platform.predicates.Recommendation;
+import platform.predicates.Recommendations;
 import jade.proto.AchieveREResponder;
-import jade.services.RateItem;
-import jade.services.RequestItems;
-import jade.services.RequestRecommendation;
+import platform.services.ChangeTrust;
+import platform.services.RateItem;
+import platform.services.RequestItems;
+import platform.services.RequestRecommendation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +36,21 @@ import java.util.List;
 public class Recommender extends Agent {
     private Codec codec;
     private Ontology recommendationOntology;
+
+    public static void main(String[] args) {
+        try {
+            Runtime rt = Runtime.instance();
+            Profile p = new ProfileImpl();
+            ContainerController cc = rt.createMainContainer(p);
+            AgentController recommender = cc.createNewAgent("Recommender", "platform.Recommender", null);
+            recommender.start();
+            AID aid = new AID();
+            aid.setLocalName("Recommender");
+        } catch(Exception ex) {
+            System.err.println(ex.getMessage());
+            return;
+        }
+    }
 
     public void setup() {
         System.out.println("Recommender: Setup");
@@ -93,20 +115,16 @@ public class Recommender extends Agent {
 
                 if(ce instanceof Action) {
                     AgentAction action = (AgentAction) ((Action) ce).getAction();
-                    if(action instanceof RequestRecommendation) {
-                        RequestRecommendation rr = (RequestRecommendation) action;
-                        List<Recommendation> listRecommendations = getRecommendations(rr.getUser_id());
-                        Recommendations recommendations = new Recommendations(listRecommendations);
+                    if(action instanceof ChangeTrust) {
+                        ChangeTrust ch = (ChangeTrust) action;
+                        changeTrust(ch.getUser_id1(), ch.getUser_id2(), ch.getValue());
 
                         result.setPerformative(ACLMessage.INFORM);
+                    } else if (action instanceof RateItem) {
+                        RateItem ri = (RateItem) action;
+                        rate(ri.getUser_id(), ri.getItem_id(), ri.getRating());
 
-                        try {
-                            getContentManager().fillContent(result, recommendations);
-                        } catch (Codec.CodecException e) {
-                            e.printStackTrace();
-                        } catch (OntologyException e) {
-                            e.printStackTrace();
-                        }
+                        result.setPerformative(ACLMessage.INFORM);
                     } else if (action instanceof RequestItems) {
                         RequestItems ri = (RequestItems) action;
                         List<Integer> listItems = getItemsNotRated(ri.getUser_id());
@@ -122,14 +140,15 @@ public class Recommender extends Agent {
                         } catch (OntologyException e) {
                             e.printStackTrace();
                         }
-                    } else if (action instanceof RateItem) {
-                        RateItem ri = (RateItem) action;
-                        rate(ri.getUser_id(), ri.getItem_id(), ri.getRating());
+                    } else if(action instanceof RequestRecommendation) {
+                        RequestRecommendation rr = (RequestRecommendation) action;
+                        List<Recommendation> listRecommendations = getRecommendations(rr.getUser_id());
+                        Recommendations recommendations = new Recommendations(listRecommendations);
 
                         result.setPerformative(ACLMessage.INFORM);
 
                         try {
-                            getContentManager().fillContent(result, null);
+                            getContentManager().fillContent(result, recommendations);
                         } catch (Codec.CodecException e) {
                             e.printStackTrace();
                         } catch (OntologyException e) {
@@ -145,6 +164,16 @@ public class Recommender extends Agent {
             }
 
             return result;
+        }
+
+        public void changeTrust(int user_id1, int user_id2, int value) {
+            System.out.println("Staring 10sec work");
+            try {
+                Thread.sleep(10000);
+            } catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
+            System.out.println("Ended 10sec work");
         }
 
         public void rate(int user_id, int item_id, double rating) {

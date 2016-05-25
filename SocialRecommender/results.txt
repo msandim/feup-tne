@@ -1,2 +1,4 @@
-Dataset: .\Datasets\FilmTrust\ratings.txt
-With Setup: cv -k 5 -p on --test-view all --rand-seed 1
+Dataset: .\Datasets\u.data
+With Setup: test-set -f .\Datasets\u1.test --rand-seed 1
+Dataset: .\Datasets\u1.test
+Dataset: .\Datasets\FilmTrust\trust.txt

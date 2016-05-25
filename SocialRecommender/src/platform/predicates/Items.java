@@ -1,4 +1,4 @@
-package jade.predicates;
+package platform.predicates;
 
 import jade.content.Predicate;
 import java.util.List;

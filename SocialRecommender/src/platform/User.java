@@ -1,4 +1,4 @@
-package jade;
+package platform;
 
 import jade.content.ContentElement;
 import jade.content.lang.Codec;
@@ -6,19 +6,19 @@ import jade.content.lang.sl.SLCodec;
 import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
-import jade.core.AID;
 import jade.core.Agent;
+import jade.core.AID;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import jade.ontology.RecommendationOntology;
-import jade.predicates.Items;
-import jade.predicates.Recommendation;
-import jade.predicates.Recommendations;
+import platform.ontology.RecommendationOntology;
+import platform.predicates.Items;
+import platform.predicates.Recommendation;
+import platform.predicates.Recommendations;
 import jade.proto.AchieveREInitiator;
-import jade.services.RequestItems;
+import platform.services.ChangeTrust;
 
 import java.util.Vector;
 
@@ -56,8 +56,6 @@ public class User extends Agent {
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender));
     }
 
-
-
     class UserBehaviour extends AchieveREInitiator {
         private AID recommender;
 
@@ -75,7 +73,11 @@ public class User extends Agent {
             msg.setOntology(recommendationOntology.getName());
             msg.addReceiver(recommender);
 
-            RequestItems sae = new RequestItems(1);
+            ChangeTrust sae = new ChangeTrust(1, 2, 1);
+            //RateItem sae = new RateItem(1, 1, 1);
+            //RequestItems sae = new RequestItems(1);
+            //RequestRecommendation sae = new RequestRecommendation(1);
+
             Action action = new Action(recommender, sae);
 
             try {
@@ -97,6 +99,10 @@ public class User extends Agent {
 
         protected void handleInform(ACLMessage inform) {
             System.out.println("User: handleInform");
+
+            // Action with no result executed successfully
+            if (inform.getContent() == null)
+                return;
 
             try {
                 ContentElement ce = getContentManager().extractContent(inform);
@@ -125,10 +131,5 @@ public class User extends Agent {
                 e.printStackTrace();
             }
         }
-
-
-
     }
-
-
 }
