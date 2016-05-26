@@ -26,6 +26,11 @@ public class User extends Agent {
     private Codec codec;
     private Ontology recommendationOntology;
 
+    public void loadGUI() {
+        UserGUI gui = new UserGUI();
+        gui.loadGUI();
+    }
+
     public void setup() {
         System.out.println("User: Setup");
 
@@ -54,6 +59,7 @@ public class User extends Agent {
         }
 
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender));
+        loadGUI();
     }
 
     class UserBehaviour extends AchieveREInitiator {
