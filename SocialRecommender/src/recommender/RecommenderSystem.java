@@ -64,16 +64,17 @@ public class RecommenderSystem
             return new ArrayList<>();
         }
 
-        List<Integer> returnArray = new ArrayList<>();
+        List<Integer> itemsNotRated = new ArrayList<>();
+        String[] userRatings = ratingsDataset[userID - 1];
 
-        // Return ratings not done already:
-        for(int j = 0; j < ratingsDataset[userID - 1].length; j++)
+        // Return ratings not done already (that means that they are filled with -1):
+        for(int j = 0; j < userRatings.length; j++)
         {
-            if (ratingsDataset[userID - 1][j].equals("-1"))
-                returnArray.add(j + 1);
+            if (userRatings[j].equals("-1"))
+                itemsNotRated.add(j + 1);
         }
 
-        return returnArray;
+        return itemsNotRated;
     }
 
     public List<Map.Entry<Integer, Double>> requestRecommendation(Integer userID, Integer numberOfItems)
@@ -84,14 +85,13 @@ public class RecommenderSystem
             return new ArrayList<>();
         }
 
-        // Put everything in an hash set:
         String[] userPreds = predictions[userID - 1];
         Map<Integer, Double> predictionsMap = new HashMap<>();
 
         for(int i = 0; i < userPreds.length; i++)
         {
-            // If the item is predicted and not rated before by the user lets put it in the map:
-            if (!(userPreds[i].equals("-1")))
+            // Let's put all the existing user predictions in a hashmap (different than -1):
+            if (!userPreds[i].equals("-1"))
                 predictionsMap.put(i + 1, Double.parseDouble(userPreds[i]));
         }
 
@@ -192,10 +192,10 @@ public class RecommenderSystem
         {
             CSVWriter writer = new CSVWriter(new FileWriter(TEST_PREDICTIONS), ' ', CSVWriter.NO_QUOTE_CHARACTER);
 
-            for(int i = 0; i < predictions.length; i++)
-                for(int j = 0; j < predictions[i].length; j++)
+            for(int i = 0; i < ratingsDataset.length; i++)
+                for(int j = 0; j < ratingsDataset[i].length; j++)
                 {
-                    if (predictions[i][j].equals("-1"))
+                    if (ratingsDataset[i][j].equals("-1"))
                         writer.writeNext(new String[]{String.valueOf(i + 1), String.valueOf(j + 1)});
                 }
 
