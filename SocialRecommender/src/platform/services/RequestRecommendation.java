@@ -1,13 +1,13 @@
-package jade.services;
+package platform.services;
 
 import jade.content.AgentAction;
 
-public class RequestItems implements AgentAction {
+public class RequestRecommendation implements AgentAction {
     private int user_id;
 
-    public RequestItems() { }
+    public RequestRecommendation() { }
 
-    public RequestItems(int user_id) {
+    public RequestRecommendation(int user_id) {
         this.user_id = user_id;
     }
 

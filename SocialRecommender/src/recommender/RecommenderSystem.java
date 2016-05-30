@@ -115,7 +115,7 @@ public class RecommenderSystem
 
         readTestPredictionsResults();
 
-        System.out.println("Já li a matriz");
+        System.out.println("JÃ¡ li a matriz");
     }
 
     public void rateItem(Integer userID, Integer itemID, String rate) throws Exception
