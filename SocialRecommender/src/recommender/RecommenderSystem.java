@@ -2,42 +2,51 @@ package recommender;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import recommender.utils.MapUtils;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Miguel on 25-05-2016.
  */
 public class RecommenderSystem
 {
+    private Integer numberOfUsers, numberOfItems;
+    private String configFilename, algorithmName;
+
     private String RATINGS_PATH =  "Datasets/FilmTrust/ratings.txt";
+    private String TEST_PREDICTIONS = "Datasets/FilmTrust/test.txt";
     private String TRUST_PATH =  "Datasets/FilmTrust/trust.txt";
+    private String TEST_PREDICTIONS_RESULTS;
 
     private String[][] ratingsDataset;
     private String[][] trustDataset;
     private String[][] predictions;
 
-    private Integer numberOfUsers, numberOfItems;
-
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
-        RecommenderSystem lol = new RecommenderSystem(1642, 2071);
+        RecommenderSystem lol = new RecommenderSystem(1642, 2071, "TrustSVD.conf", "TrustSVD");
 
-        lol.importDataset();
+        lol.changeTrust(1, 2, "1");
+        lol.rateItem(1, 3, "2.5");
 
-        System.out.println("LOL");
-        new java.util.Scanner(System.in).nextLine();
+        System.out.println("O user 2 tem " + lol.requestItemsNotRated(2).size() + " items n avaliados");
+        lol.runAlgorithm();
+        System.out.println(lol.requestRecommendation(2, 20));
     }
 
-    public RecommenderSystem(Integer numberOfUsers, Integer numberOfItems)
+    /////////////////////// PUBLIC METHODS ///////////////////////////////////////////////
+
+    public RecommenderSystem(Integer numberOfUsers, Integer numberOfItems, String configFilename, String algorithmName)
     {
         this.numberOfUsers = numberOfUsers;
         this.numberOfItems = numberOfItems;
+        this.configFilename = configFilename;
+        this.algorithmName = algorithmName;
+        this.TEST_PREDICTIONS_RESULTS = "Results/" + algorithmName + "-rating-predictions.txt";
 
         // Initialize lists:
         ratingsDataset = new String[numberOfUsers][numberOfItems];
@@ -45,9 +54,6 @@ public class RecommenderSystem
         predictions = new String[numberOfUsers][numberOfItems];
 
         importDataset();
-
-        //System.out.println(requestItemsNotRated(1));
-
     }
 
     public List<Integer> requestItemsNotRated(Integer userID)
@@ -70,7 +76,49 @@ public class RecommenderSystem
         return returnArray;
     }
 
-    public void rateItem(Integer userID, Integer itemID, String rate)
+    public List<Map.Entry<Integer, Double>> requestRecommendation(Integer userID, Integer numberOfItems)
+    {
+        if (userID > numberOfUsers)
+        {
+            System.err.println("User ID not valid!");
+            return new ArrayList<>();
+        }
+
+        // Put everything in an hash set:
+        String[] userPreds = predictions[userID - 1];
+        Map<Integer, Double> predictionsMap = new HashMap<>();
+
+        for(int i = 0; i < userPreds.length; i++)
+        {
+            // If the item is predicted and not rated before by the user lets put it in the map:
+            if (!(userPreds[i].equals("-1")))
+                predictionsMap.put(i + 1, Double.parseDouble(userPreds[i]));
+        }
+
+        return MapUtils.getTopK(MapUtils.orderByValueDecreasing(predictionsMap), numberOfItems);
+    }
+
+    public void runAlgorithm() throws Exception
+    {
+        // Write predictions to test:
+        writeTestPredictions();
+
+        // Run the algorithm
+        RecommenderAlgorithm algorithm = new RecommenderAlgorithm();
+        algorithm.executeLib(new String[]{"-c", "config/" + configFilename});
+
+        System.out.println("Ja corri o algoritmo");
+
+        // Rest predictions and load new ones:
+        for (String[] array : predictions)
+            Arrays.fill(array, "-1");
+
+        readTestPredictionsResults();
+
+        System.out.println("Já li a matriz");
+    }
+
+    public void rateItem(Integer userID, Integer itemID, String rate) throws Exception
     {
         if (userID > numberOfUsers)
         {
@@ -88,18 +136,9 @@ public class RecommenderSystem
 
         // Update rate file:
         saveRatings();
-
-        // Run algorithm:
-        runAlgorithm();
     }
 
-    public List<Integer> requestRecommendation(Integer numberOfItems)
-    {
-        // TODO
-        return null;
-    }
-
-    public void changeTrust(Integer user1ID, Integer user2ID, String trust)
+    public void changeTrust(Integer user1ID, Integer user2ID, String trust) throws Exception
     {
         if (user1ID > numberOfUsers)
         {
@@ -117,14 +156,55 @@ public class RecommenderSystem
 
         // Update trust file:
         saveTrust();
-
-        // Run the algorithm:
-        runAlgorithm();
     }
 
-    private void runAlgorithm()
+    ///////////////// PRIVATE METHODS ///////////////////////////////////////////////////////
+
+    private void readTestPredictionsResults()
     {
-        // TODO
+        try
+        {
+            CSVReader testPredictionsReader = new CSVReader(new FileReader(TEST_PREDICTIONS_RESULTS), ' ');
+
+            // Read first line (header):
+            testPredictionsReader.readNext();
+
+            String[] nextLine;
+            while ((nextLine = testPredictionsReader.readNext()) != null)
+            {
+                Integer userID = Integer.parseInt(nextLine[0]);
+                Integer itemID = Integer.parseInt(nextLine[1]);
+                String predictedRating = nextLine[3];
+                predictions[userID - 1][itemID - 1] = predictedRating;
+            }
+
+            testPredictionsReader.close();
+        } catch (IOException e)
+        {
+            System.err.println("Error loading test predictions file!");
+            System.exit(1);
+        }
+    }
+
+    private void writeTestPredictions()
+    {
+        try
+        {
+            CSVWriter writer = new CSVWriter(new FileWriter(TEST_PREDICTIONS), ' ', CSVWriter.NO_QUOTE_CHARACTER);
+
+            for(int i = 0; i < predictions.length; i++)
+                for(int j = 0; j < predictions[i].length; j++)
+                {
+                    if (predictions[i][j].equals("-1"))
+                        writer.writeNext(new String[]{String.valueOf(i + 1), String.valueOf(j + 1)});
+                }
+
+            writer.close();
+        } catch (IOException e)
+        {
+            System.err.println("Error writing in test predictions file!");
+            System.exit(1);
+        }
     }
 
     private void importDataset()

@@ -14,7 +14,7 @@ public class Main {
             String configFile = "config\\AR.conf";
 
             // run algorithm
-            Lib lib = new Lib();
+            RecommenderAlgorithm lib = new RecommenderAlgorithm();
             lib.setConfigFiles(configFile);
             lib.executeLib(args);
         } catch(Exception ex) {
