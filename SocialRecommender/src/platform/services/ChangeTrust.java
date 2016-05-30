@@ -5,11 +5,11 @@ import jade.content.AgentAction;
 public class ChangeTrust implements AgentAction {
     private int user_id1;
     private int user_id2;
-    private int value;
+    private String value;
 
     public ChangeTrust() { }
 
-    public ChangeTrust(int user_id1, int user_id2, int value) {
+    public ChangeTrust(int user_id1, int user_id2, String value) {
         this.user_id1 = user_id1;
         this.user_id2 = user_id2;
         this.value = value;
@@ -23,7 +23,7 @@ public class ChangeTrust implements AgentAction {
 
     public void setUser_id2(int user_id2) { this.user_id2 = user_id2; }
 
-    public int getValue() { return value; }
+    public String getValue() { return value; }
 
-    public void setValue(int value) { this.value = value; }
+    public void setValue(String value) { this.value = value; }
 }

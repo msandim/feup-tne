@@ -15,11 +15,14 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import platform.ontology.RecommendationOntology;
 import platform.predicates.Items;
-import platform.predicates.Recommendation;
 import platform.predicates.Recommendations;
 import jade.proto.AchieveREInitiator;
 import platform.services.ChangeTrust;
+import platform.services.RateItem;
+import platform.services.RequestItems;
+import platform.services.RequestRecommendation;
 
+import java.util.Map;
 import java.util.Vector;
 
 public class User extends Agent {
@@ -79,10 +82,10 @@ public class User extends Agent {
             msg.setOntology(recommendationOntology.getName());
             msg.addReceiver(recommender);
 
-            ChangeTrust sae = new ChangeTrust(1, 2, 1);
-            //RateItem sae = new RateItem(1, 1, 1);
+            //ChangeTrust sae = new ChangeTrust(1, 2, "1");
+            //RateItem sae = new RateItem(1, 1, "1");
             //RequestItems sae = new RequestItems(1);
-            //RequestRecommendation sae = new RequestRecommendation(1);
+            RequestRecommendation sae = new RequestRecommendation(1);
 
             Action action = new Action(recommender, sae);
 
@@ -118,9 +121,10 @@ public class User extends Agent {
                     // Print Recommendations
                     System.out.println("Recommendations:");
 
-                    for (Recommendation recommendation: recommendations.getRecommendations()) {
-                        System.out.println("user_id: " + recommendation.getUser_id() + ", item_id: "
-                                + recommendation.getItem_id() + ", rating: " + recommendation.getRating());
+                    for (Map.Entry<Integer, Double> entry : recommendations.getRecommendations()) {
+                        Integer key = entry.getKey();
+                        Double value = entry.getValue();
+                        System.out.println("item_id: " + key + ", rating: " + value);
                     }
                 } else if(ce instanceof Items) {
                     Items items = (Items) ce;

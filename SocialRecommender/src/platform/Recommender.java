@@ -22,21 +22,23 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import platform.ontology.RecommendationOntology;
 import platform.predicates.Items;
-import platform.predicates.Recommendation;
 import platform.predicates.Recommendations;
 import jade.proto.AchieveREResponder;
 import platform.services.ChangeTrust;
 import platform.services.RateItem;
 import platform.services.RequestItems;
 import platform.services.RequestRecommendation;
-
-import java.util.ArrayList;
-import java.util.List;
+import recommender.RecommenderSystem;
 
 public class Recommender extends Agent {
     private Codec codec;
     private Ontology recommendationOntology;
-
+    private RecommenderSystem recommenderSystem;
+    private static final int NUM_USERS = 1642;
+    private static final int NUM_ITEMS = 2071;
+    private static final String CONFIG_FILENAME = "TrustSVD.conf";
+    private static final String ALGORITHM_NAME = "TrustSVD";
+    
     public static void main(String[] args) {
         try {
             Runtime rt = Runtime.instance();
@@ -55,6 +57,7 @@ public class Recommender extends Agent {
     public void setup() {
         System.out.println("Recommender: Setup");
 
+        this.recommenderSystem = new RecommenderSystem(NUM_USERS, NUM_ITEMS, CONFIG_FILENAME, ALGORITHM_NAME);
         this.codec = new SLCodec();
         getContentManager().registerLanguage(codec);
 
@@ -118,21 +121,15 @@ public class Recommender extends Agent {
                     if(action instanceof ChangeTrust) {
                         ChangeTrust ch = (ChangeTrust) action;
                         changeTrust(ch.getUser_id1(), ch.getUser_id2(), ch.getValue());
-
                         result.setPerformative(ACLMessage.INFORM);
                     } else if (action instanceof RateItem) {
                         RateItem ri = (RateItem) action;
                         rate(ri.getUser_id(), ri.getItem_id(), ri.getRating());
-
                         result.setPerformative(ACLMessage.INFORM);
                     } else if (action instanceof RequestItems) {
                         RequestItems ri = (RequestItems) action;
-                        List<Integer> listItems = getItemsNotRated(ri.getUser_id());
-                        Items items = new Items(listItems);
-                        items.getItems().add(1);
-
+                        Items items = getItemsNotRated(ri.getUser_id());
                         result.setPerformative(ACLMessage.INFORM);
-
                         try {
                             getContentManager().fillContent(result, items);
                         } catch (Codec.CodecException e) {
@@ -142,11 +139,8 @@ public class Recommender extends Agent {
                         }
                     } else if(action instanceof RequestRecommendation) {
                         RequestRecommendation rr = (RequestRecommendation) action;
-                        List<Recommendation> listRecommendations = getRecommendations(rr.getUser_id());
-                        Recommendations recommendations = new Recommendations(listRecommendations);
-
+                        Recommendations recommendations = getRecommendations(rr.getUser_id());
                         result.setPerformative(ACLMessage.INFORM);
-
                         try {
                             getContentManager().fillContent(result, recommendations);
                         } catch (Codec.CodecException e) {
@@ -156,42 +150,36 @@ public class Recommender extends Agent {
                         }
                     }
                 }
-
             } catch (Codec.CodecException e) {
                 e.printStackTrace();
             } catch (OntologyException e) {
                 e.printStackTrace();
             }
-
             return result;
         }
 
-        public void changeTrust(int user_id1, int user_id2, int value) {
-            System.out.println("Staring 10sec work");
+        public void changeTrust(int user_id1, int user_id2, String value) {
             try {
-                Thread.sleep(10000);
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+                recommenderSystem.changeTrust(user_id1, user_id2, value);
+            } catch (Exception e) {
+                System.err.println(e.toString());
             }
-            System.out.println("Ended 10sec work");
         }
 
-        public void rate(int user_id, int item_id, double rating) {
-
+        public void rate(int user_id, int item_id, String rating) {
+            try {
+                recommenderSystem.rateItem(user_id, item_id, rating);
+            } catch (Exception e) {
+                System.err.println(e.toString());
+            }
         }
 
-        public List<Recommendation> getRecommendations(int user_id) {
-            List<Recommendation> recommendations = new ArrayList<Recommendation>();
-            Recommendation recommendation = new Recommendation(1, 1, 1.4);
-            recommendations.add(recommendation);
-            return recommendations;
+        public Recommendations getRecommendations(int user_id) {
+            return new Recommendations(user_id, recommenderSystem.requestRecommendation(user_id, 20));
         }
 
-        public List<Integer> getItemsNotRated(int user_id) {
-            List<Integer> items = new ArrayList<Integer>();
-            items.add(1);
-            return items;
+        public Items getItemsNotRated(int user_id) {
+            return new Items(recommenderSystem.requestItemsNotRated(user_id));
         }
-
     }
 }

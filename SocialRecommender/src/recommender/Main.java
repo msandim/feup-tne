@@ -11,10 +11,10 @@ public class Main {
             Logs.config("log4j.xml", true);
 
             // config recommender
-            String configFile = "config\\SVD++.conf";
+            String configFile = "config\\AR.conf";
 
             // run algorithm
-            Lib lib = new Lib();
+            RecommenderAlgorithm lib = new RecommenderAlgorithm();
             lib.setConfigFiles(configFile);
             lib.executeLib(args);
         } catch(Exception ex) {

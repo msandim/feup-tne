@@ -1,9 +1,0 @@
-[INFO ] 2016-05-25 17:24:29,362 -- Dataset: .\Datasets\u.data
-[DEBUG] 2016-05-25 17:24:29,825 -- With Specs: {Users, Items, Ratings} = {943, 1682, 100000}, Scale = {1.0,2.0,3.0,4.0,5.0}
-[INFO ] 2016-05-25 17:24:29,927 -- With Setup: test-set -f .\Datasets\u1.test --rand-seed 1
-[INFO ] 2016-05-25 17:24:29,928 -- Dataset: .\Datasets\u1.test
-[DEBUG] 2016-05-25 17:24:29,999 -- With Specs: {Users, Items, Ratings} = {943, 1682, 20000}, Scale = {1.0,2.0,3.0,4.0,5.0}
-[DEBUG] 2016-05-25 17:24:30,018 -- Social dataset: .\Datasets\FilmTrust\trust.txt
-[INFO ] 2016-05-25 17:24:30,018 -- Dataset: .\Datasets\FilmTrust\trust.txt
-[DEBUG] 2016-05-25 17:24:30,024 -- With Specs: {Users, Users, Links} = {1359, 1359, 1853}, Scale = {1.0}
-[DEBUG] 2016-05-25 17:24:30,199 -- TrustSVD: [factors, lRate, maxLRate, regB, regU, regI, regS, iters, boldDriver] = [10, 0.01, -1.0, 1.2, 1.2, 1.2, 0.9, 100, true]

@@ -5,11 +5,11 @@ import jade.content.AgentAction;
 public class RateItem implements AgentAction {
     private int user_id;
     private int item_id;
-    private double rating;
+    private String rating;
 
     public RateItem() { }
 
-    public RateItem(int user_id, int item_id, double rating) {
+    public RateItem(int user_id, int item_id, String rating) {
         this.user_id = user_id;
         this.item_id = item_id;
         this.rating = rating;
@@ -23,7 +23,7 @@ public class RateItem implements AgentAction {
 
     public void setItem_id(int item_id) { this.item_id = item_id; }
 
-    public double getRating() { return rating; }
+    public String getRating() { return rating; }
 
-    public void setRating(double rating) { this.rating = rating; }
+    public void setRating(String rating) { this.rating = rating; }
 }
