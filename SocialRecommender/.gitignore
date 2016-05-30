@@ -51,6 +51,9 @@ crashlytics-build.properties
 fabric.properties
 /SocialRecommender.iml
 
+# Logs
+debug.log
+
 /Results/
 results.txt
 /Datasets/FilmTrust/test.txt
