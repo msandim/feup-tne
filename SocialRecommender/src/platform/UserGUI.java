@@ -5,8 +5,7 @@ import platform.predicates.Recommendations;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -16,6 +15,7 @@ import java.util.List;
 public class UserGUI extends JPanel {
     private JList items_list;
     private JTable recommendations_table;
+    private JTextField size_text;
     private JTextField value_text;
     private JTextField user_text;
     private JTextField trust_text;
@@ -58,6 +58,7 @@ public class UserGUI extends JPanel {
         recommendations_table.setModel(dtm);
         JScrollPane tableScroller = new JScrollPane(recommendations_table);
 
+        JLabel value_label = new JLabel("Rating:");
         // Value TextBox
         value_text = new JTextField(10);
 
@@ -69,11 +70,21 @@ public class UserGUI extends JPanel {
             }
         });
 
+        JLabel user_label = new JLabel("User ID:");
         //User Text
         user_text = new JTextField(10);
 
+        JLabel trust_label = new JLabel("Trust:");
         //Trust Text
         trust_text = new JTextField(10);
+
+        // Get Items Not Rated Button
+        JButton get_items_btn = new JButton("Get Items Not Rated");
+        get_items_btn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                get_items_handler();
+            }
+        });
 
         // Change Trust Button
         JButton change_trust_btn = new JButton("Change Trust");
@@ -100,13 +111,22 @@ public class UserGUI extends JPanel {
             }
         });
 
+        JLabel size_label = new JLabel("Size:");
+        this.size_text = new JTextField(10);
+
         // Panel
         this.add(listScroller);
         this.add(tableScroller);
+        this.add(get_items_btn);
+        this.add(value_label);
         this.add(value_text);
         this.add(rate_btn);
+        this.add(size_label);
+        this.add(size_text);
         this.add(recommend_btn);
+        this.add(user_label);
         this.add(user_text);
+        this.add(trust_label);
         this.add(trust_text);
         this.add(change_trust_btn);
         this.add(update_model_btn);
@@ -114,8 +134,10 @@ public class UserGUI extends JPanel {
         Container contentPane = frame.getContentPane();
         contentPane.add(this);
         frame.setVisible(true);
+    }
 
-        //Load Items
+    public void get_items_handler() {
+        System.out.println("Get Items");
         user.requestItems(user_id);
     }
 
@@ -145,7 +167,18 @@ public class UserGUI extends JPanel {
 
     public void recommend_btn_handler() {
         System.out.println("Recommend");
-        user.requestRecommendation(user_id);
+        int size = 20;
+        try {
+            size = Integer.parseInt(size_text.getText());
+            if (size < 1 || size > 50) {
+                JOptionPane.showMessageDialog(null, "Size of recommendation must be between 1 and 50");
+                return;
+            }
+            user.requestRecommendation(user_id, size);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Size must be and integer");
+            return;
+        }
     }
 
     public void change_trust_handler() {
@@ -168,22 +201,31 @@ public class UserGUI extends JPanel {
     }
 
     public void load_items(List<Integer> items) {
-        DefaultListModel dm = (DefaultListModel) items_list.getModel();
-        dm.removeAllElements();
-        for (int i = 0; i < items.size(); i++)
-            dm.addElement(items.get(i));
-        items_list.updateUI();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                DefaultListModel dm = (DefaultListModel) items_list.getModel();
+                dm.removeAllElements();
+                for (int i = 0; i < items.size(); i++)
+                    dm.addElement(items.get(i));
+            }
+        });
     }
 
     public void load_recommendations(Recommendations recommendations) {
-        List<Recommendation> recommendationList = recommendations.getRecommendations();
-        DefaultTableModel dtm = (DefaultTableModel) recommendations_table.getModel();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                List<Recommendation> recommendationList = recommendations.getRecommendations();
+                DefaultTableModel dtm = (DefaultTableModel) recommendations_table.getModel();
 
-        for (int i = 0; i < recommendationList.size(); i++) {
-            dtm.addRow(new Object[]{i, recommendationList.get(i).getItem_id(), recommendationList.get(i).getRating()});
-        }
-        recommendations_table.updateUI();
+                for (int i = 0; i < recommendationList.size(); i++) {
+                    dtm.addRow(new Object[]{i+1, recommendationList.get(i).getItem_id(), recommendationList.get(i).getRating()});
+                }
+            }
+        });
     }
 
+    public void action_done() {
+        JOptionPane.showMessageDialog(null, "Action finished!");
+    }
 
 }

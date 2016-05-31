@@ -153,7 +153,7 @@ public class Recommender extends Agent {
                         }
                     } else if(action instanceof RequestRecommendation) {
                         RequestRecommendation rr = (RequestRecommendation) action;
-                        Recommendations recommendations = getRecommendations(rr.getUser_id());
+                        Recommendations recommendations = getRecommendations(rr.getUser_id(), rr.getSize());
                         result.setPerformative(ACLMessage.INFORM);
                         try {
                             getContentManager().fillContent(result, recommendations);
@@ -188,9 +188,9 @@ public class Recommender extends Agent {
             }
         }
 
-        public Recommendations getRecommendations(int user_id) {
+        public Recommendations getRecommendations(int user_id, int size) {
             List<Recommendation> recommendations_list = new ArrayList<>();
-            List<Map.Entry<Integer, Double>> recommendations = recommenderSystem.requestRecommendation(2, 20);
+            List<Map.Entry<Integer, Double>> recommendations = recommenderSystem.requestRecommendation(user_id, size);
 
             for (Map.Entry<Integer, Double> entry: recommendations)
                 recommendations_list.add(new Recommendation(user_id, entry.getKey(), entry.getValue()));

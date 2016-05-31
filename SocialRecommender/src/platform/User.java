@@ -87,8 +87,8 @@ public class User extends Agent {
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
-    public void requestRecommendation(int user_id) {
-        RequestRecommendation sae = new RequestRecommendation(user_id);
+    public void requestRecommendation(int user_id, int size) {
+        RequestRecommendation sae = new RequestRecommendation(user_id, size);
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
@@ -137,6 +137,8 @@ public class User extends Agent {
 
         protected void handleInform(ACLMessage inform) {
             System.out.println("User: handleInform");
+
+            userGUI.action_done();
 
             // Action with no result executed successfully
             if (inform.getContent() == null)
