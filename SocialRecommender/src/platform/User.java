@@ -32,6 +32,19 @@ public class User extends Agent {
     public void setup() {
         System.out.println("User: Setup");
 
+
+        Object[] args = getArguments();
+        if (args == null || args.length != 1) {
+            System.err.println("Error parsing args: expected user_id");
+            return;
+        }
+        try {
+            this.user_id = Integer.parseInt((String) args[0]);
+        } catch (Exception e) {
+            System.err.println("Error parsing args: user_id must be an integer greater than 1");
+            return;
+        }
+
         this.codec = new SLCodec();
         getContentManager().registerLanguage(codec);
 
@@ -55,7 +68,6 @@ public class User extends Agent {
             fe.printStackTrace();
         }
 
-        this.user_id = 1;
         this.userGUI = new UserGUI(this, user_id);
         this.userGUI.loadGUI();
     }
@@ -77,6 +89,11 @@ public class User extends Agent {
 
     public void requestRecommendation(int user_id) {
         RequestRecommendation sae = new RequestRecommendation(1);
+        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
+    }
+
+    public void updateModel() {
+        UpdateModel sae = new UpdateModel();
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 

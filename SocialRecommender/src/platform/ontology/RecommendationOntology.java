@@ -29,6 +29,7 @@ public class RecommendationOntology extends BeanOntology {
             add(platform.services.RateItem.class);
             add(platform.services.RequestItems.class);
             add(platform.services.RequestRecommendation.class);
+            add(platform.services.UpdateModel.class);
         } catch(BeanOntologyException boe) {
             boe.printStackTrace();
         }

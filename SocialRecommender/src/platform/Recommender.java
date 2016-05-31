@@ -18,7 +18,6 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.util.leap.HashMap;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import platform.ontology.RecommendationOntology;
@@ -26,10 +25,7 @@ import platform.predicates.Items;
 import platform.predicates.Recommendation;
 import platform.predicates.Recommendations;
 import jade.proto.AchieveREResponder;
-import platform.services.ChangeTrust;
-import platform.services.RateItem;
-import platform.services.RequestItems;
-import platform.services.RequestRecommendation;
+import platform.services.*;
 import recommender.RecommenderSystem;
 
 import java.util.ArrayList;
@@ -42,15 +38,13 @@ public class Recommender extends Agent {
     private RecommenderSystem recommenderSystem;
     private static final int NUM_USERS = 1642;
     private static final int NUM_ITEMS = 2071;
-    private static final String CONFIG_FILENAME = "TrustSVD.conf";
-    private static final String ALGORITHM_NAME = "TrustSVD";
     
     public static void main(String[] args) {
         try {
             Runtime rt = Runtime.instance();
             Profile p = new ProfileImpl();
             ContainerController cc = rt.createMainContainer(p);
-            AgentController recommender = cc.createNewAgent("Recommender", "platform.Recommender", null);
+            AgentController recommender = cc.createNewAgent("Recommender", "platform.Recommender", args);
             recommender.start();
             AID aid = new AID();
             aid.setLocalName("Recommender");
@@ -63,17 +57,23 @@ public class Recommender extends Agent {
     public void setup() {
         System.out.println("Recommender: Setup");
 
-        this.recommenderSystem = new RecommenderSystem(NUM_USERS, NUM_ITEMS, CONFIG_FILENAME, ALGORITHM_NAME);
+        // Parse input
+        Object[] args = getArguments();
+        if (args == null || args.length != 2) {
+            System.err.println("Error parsing args: expected config filename and algorithm name");
+            return;
+        }
+        String config_filename = args[0].toString(); // Config_filename
+        String algorithm_name = args[1].toString(); // Algorithm_name
+        this.recommenderSystem = new RecommenderSystem(NUM_USERS, NUM_ITEMS, config_filename, algorithm_name);
+
+        // Load codec
         this.codec = new SLCodec();
         getContentManager().registerLanguage(codec);
 
+        // Load ontology
         this.recommendationOntology = RecommendationOntology.getInstance();
         getContentManager().registerOntology(recommendationOntology);
-
-        Object[] args = getArguments();
-        if(args != null && args.length > 0) {
-            // Parse args
-        }
 
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -131,6 +131,14 @@ public class Recommender extends Agent {
                     } else if (action instanceof RateItem) {
                         RateItem ri = (RateItem) action;
                         rate(ri.getUser_id(), ri.getItem_id(), ri.getRating());
+                        result.setPerformative(ACLMessage.INFORM);
+                    } else if (action instanceof UpdateModel) {
+                        UpdateModel ri = (UpdateModel) action;
+                        try {
+                            recommenderSystem.runAlgorithm();
+                        } catch (Exception e) {
+                            System.err.println(e.toString());
+                        }
                         result.setPerformative(ACLMessage.INFORM);
                     } else if (action instanceof RequestItems) {
                         RequestItems ri = (RequestItems) action;
