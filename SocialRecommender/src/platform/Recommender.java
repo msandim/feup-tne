@@ -18,10 +18,12 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.util.leap.HashMap;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import platform.ontology.RecommendationOntology;
 import platform.predicates.Items;
+import platform.predicates.Recommendation;
 import platform.predicates.Recommendations;
 import jade.proto.AchieveREResponder;
 import platform.services.ChangeTrust;
@@ -29,6 +31,10 @@ import platform.services.RateItem;
 import platform.services.RequestItems;
 import platform.services.RequestRecommendation;
 import recommender.RecommenderSystem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Recommender extends Agent {
     private Codec codec;
@@ -175,7 +181,13 @@ public class Recommender extends Agent {
         }
 
         public Recommendations getRecommendations(int user_id) {
-            return new Recommendations(user_id, recommenderSystem.requestRecommendation(user_id, 20));
+            List<Recommendation> recommendations_list = new ArrayList<>();
+            List<Map.Entry<Integer, Double>> recommendations = recommenderSystem.requestRecommendation(2, 20);
+
+            for (Map.Entry<Integer, Double> entry: recommendations)
+                recommendations_list.add(new Recommendation(user_id, entry.getKey(), entry.getValue()));
+
+            return new Recommendations(user_id, recommendations_list);
         }
 
         public Items getItemsNotRated(int user_id) {

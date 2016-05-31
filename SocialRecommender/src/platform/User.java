@@ -1,5 +1,6 @@
 package platform;
 
+import jade.content.AgentAction;
 import jade.content.ContentElement;
 import jade.content.lang.Codec;
 import jade.content.lang.sl.SLCodec;
@@ -15,24 +16,18 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import platform.ontology.RecommendationOntology;
 import platform.predicates.Items;
+import platform.predicates.Recommendation;
 import platform.predicates.Recommendations;
 import jade.proto.AchieveREInitiator;
-import platform.services.ChangeTrust;
-import platform.services.RateItem;
-import platform.services.RequestItems;
-import platform.services.RequestRecommendation;
-
-import java.util.Map;
+import platform.services.*;
 import java.util.Vector;
 
 public class User extends Agent {
     private Codec codec;
     private Ontology recommendationOntology;
-
-    public void loadGUI() {
-        UserGUI gui = new UserGUI();
-        gui.loadGUI();
-    }
+    private AID recommender;
+    private UserGUI userGUI;
+    private int user_id;
 
     public void setup() {
         System.out.println("User: Setup");
@@ -48,11 +43,10 @@ public class User extends Agent {
         sd.setType("recommendation");
         template.addServices(sd);
 
-        AID recommender = null;
         try {
             DFAgentDescription[] result = DFService.search(this, template);
             if (result.length > 0) {
-                recommender = result[0].getName();
+                this.recommender = result[0].getName();
             } else {
                 System.out.println("No recommender registered");
                 return;
@@ -61,16 +55,39 @@ public class User extends Agent {
             fe.printStackTrace();
         }
 
-        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender));
-        loadGUI();
+        this.user_id = 1;
+        this.userGUI = new UserGUI(this, user_id);
+        this.userGUI.loadGUI();
+    }
+
+    public void changeTrust(int user_id1, int user_id2, String value) {
+        ChangeTrust sae = new ChangeTrust(1, 2, "1");
+        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
+    }
+
+    public void rateItem(int user_id, int item_id, String value) {
+        RateItem sae = new RateItem(1, 1, "1");
+        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
+    }
+
+    public void requestItems(int user_id) {
+        RequestItems sae = new RequestItems(1);
+        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
+    }
+
+    public void requestRecommendation(int user_id) {
+        RequestRecommendation sae = new RequestRecommendation(1);
+        addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
     class UserBehaviour extends AchieveREInitiator {
         private AID recommender;
+        private AgentAction aa;
 
-        public UserBehaviour(Agent a, ACLMessage msg, AID recommender) {
+        public UserBehaviour(Agent a, ACLMessage msg, AID recommender, AgentAction aa) {
             super(a, msg);
             this.recommender = recommender;
+            this.aa = aa;
         }
 
         protected Vector<ACLMessage> prepareRequests(ACLMessage msg) {
@@ -82,12 +99,7 @@ public class User extends Agent {
             msg.setOntology(recommendationOntology.getName());
             msg.addReceiver(recommender);
 
-            //ChangeTrust sae = new ChangeTrust(1, 2, "1");
-            //RateItem sae = new RateItem(1, 1, "1");
-            //RequestItems sae = new RequestItems(1);
-            RequestRecommendation sae = new RequestRecommendation(1);
-
-            Action action = new Action(recommender, sae);
+            Action action = new Action(recommender, aa);
 
             try {
                 getContentManager().fillContent(msg, action);
@@ -121,19 +133,17 @@ public class User extends Agent {
                     // Print Recommendations
                     System.out.println("Recommendations:");
 
-                    for (Map.Entry<Integer, Double> entry : recommendations.getRecommendations()) {
-                        Integer key = entry.getKey();
-                        Double value = entry.getValue();
-                        System.out.println("item_id: " + key + ", rating: " + value);
+                    for (Recommendation item : recommendations.getRecommendations()) {
+                        Integer item_id = item.getItem_id();
+                        Double rating = item.getRating();
+                        System.out.println("item_id: " + item_id + ", rating: " + rating);
                     }
+                    userGUI.load_recommendations(recommendations);
                 } else if(ce instanceof Items) {
                     Items items = (Items) ce;
 
                     // Print Items
-                    System.out.println("Items:");
-                    for(int i = 0; i < items.getItems().size(); i++) {
-                        System.out.println(items.getItems().get(i));
-                    }
+                    userGUI.load_items(items.getItems());
                 }
             } catch (Codec.CodecException e) {
                 e.printStackTrace();
