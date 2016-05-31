@@ -146,8 +146,8 @@ public class UserGUI extends JPanel {
         // Check if value typed is an double
         try {
             double rating = Double.parseDouble(value_text.getText());
-            if (rating < 1 || rating > 4) {
-                JOptionPane.showMessageDialog(null, "Rating must be between 1 and 4");
+            if (rating < 0.5 || rating > 4) {
+                JOptionPane.showMessageDialog(null, "Rating must be between 0.5 and 4.0");
                 return;
             }
         } catch(NumberFormatException e) {
@@ -189,7 +189,7 @@ public class UserGUI extends JPanel {
                 JOptionPane.showMessageDialog(null, "Trust must be 0 or 1");
                 return;
             }
-            user.changeTrust(this.user_id, user_id2, trust_text.toString());
+            user.changeTrust(this.user_id, user_id2, trust_text.getText());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "User id and trust must be integers");
         }
@@ -217,6 +217,13 @@ public class UserGUI extends JPanel {
                 List<Recommendation> recommendationList = recommendations.getRecommendations();
                 DefaultTableModel dtm = (DefaultTableModel) recommendations_table.getModel();
 
+                // Remove all elements
+                int rowCount = dtm.getRowCount();
+                for (int i = rowCount - 1; i >= 0; i--) {
+                    dtm.removeRow(i);
+                }
+
+                // Add elements
                 for (int i = 0; i < recommendationList.size(); i++) {
                     dtm.addRow(new Object[]{i+1, recommendationList.get(i).getItem_id(), recommendationList.get(i).getRating()});
                 }
