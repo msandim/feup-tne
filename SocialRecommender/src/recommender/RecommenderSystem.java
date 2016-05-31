@@ -150,6 +150,8 @@ public class RecommenderSystem
             return;
         }
 
+        System.out.println("User " + user1ID + " evaluated " + user2ID + " with " + trust);
+
         ratingsDataset[user1ID - 1][user2ID - 1] = trust;
 
         // Update trust file:
