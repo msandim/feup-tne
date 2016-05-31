@@ -73,22 +73,22 @@ public class User extends Agent {
     }
 
     public void changeTrust(int user_id1, int user_id2, String value) {
-        ChangeTrust sae = new ChangeTrust(1, 2, "1");
+        ChangeTrust sae = new ChangeTrust(user_id1, user_id2, value);
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
     public void rateItem(int user_id, int item_id, String value) {
-        RateItem sae = new RateItem(1, 1, "1");
+        RateItem sae = new RateItem(user_id, item_id, value);
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
     public void requestItems(int user_id) {
-        RequestItems sae = new RequestItems(1);
+        RequestItems sae = new RequestItems(user_id);
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
     public void requestRecommendation(int user_id) {
-        RequestRecommendation sae = new RequestRecommendation(1);
+        RequestRecommendation sae = new RequestRecommendation(user_id);
         addBehaviour(new UserBehaviour(this, new ACLMessage(ACLMessage.REQUEST), recommender, sae));
     }
 
