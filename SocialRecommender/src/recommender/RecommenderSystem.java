@@ -107,15 +107,11 @@ public class RecommenderSystem
         RecommenderAlgorithm algorithm = new RecommenderAlgorithm();
         algorithm.executeLib(new String[]{"-c", "config/" + configFilename});
 
-        System.out.println("Ja corri o algoritmo");
-
         // Rest predictions and load new ones:
         for (String[] array : predictions)
             Arrays.fill(array, "-1");
 
         readTestPredictionsResults();
-
-        System.out.println("Já li a matriz");
     }
 
     public void rateItem(Integer userID, Integer itemID, String rate) throws Exception
