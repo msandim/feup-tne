@@ -28,7 +28,9 @@ public class RecommenderSystem
 
     public static void main(String[] args) throws Exception
     {
-        RecommenderSystem lol = new RecommenderSystem(1642, 2071, "TrustSVD.conf", "TrustSVD");
+        //RecommenderSystem lol = new RecommenderSystem(1642, 2071, "TrustSVD.conf", "TrustSVD");
+        //RecommenderSystem lol = new RecommenderSystem(1642, 2071, "SoRec.conf", "SoRec");
+        RecommenderSystem lol = new RecommenderSystem(1642, 2071, "SocialMF.conf", "SocialMF");
 
         lol.changeTrust(1, 2, "1");
         lol.rateItem(1, 3, "2.5");
