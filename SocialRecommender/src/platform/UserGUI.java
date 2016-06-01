@@ -31,7 +31,7 @@ public class UserGUI extends JPanel {
     public void loadGUI() {
         // Configure frame
         JFrame frame = new JFrame();
-        frame.setTitle("User");
+        frame.setTitle("User " + user_id);
         frame.setSize(800, 600);
         frame.setResizable(false);
         frame.addWindowListener(new WindowAdapter() {
