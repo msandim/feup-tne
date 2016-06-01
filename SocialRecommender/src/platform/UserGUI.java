@@ -267,4 +267,8 @@ public class UserGUI extends JPanel {
         JOptionPane.showMessageDialog(null, "Action finished!");
     }
 
+    public void action_failed() {
+        JOptionPane.showMessageDialog(null, "Action failed, try to update model");
+    }
+
 }

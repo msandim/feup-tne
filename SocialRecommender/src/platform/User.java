@@ -132,7 +132,7 @@ public class User extends Agent {
 
         protected void handleFailure(ACLMessage failure) {
             System.out.println("User: handleFailure");
-
+            userGUI.action_failed();
         }
 
         protected void handleInform(ACLMessage inform) {

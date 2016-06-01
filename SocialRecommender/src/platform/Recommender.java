@@ -154,13 +154,17 @@ public class Recommender extends Agent {
                     } else if(action instanceof RequestRecommendation) {
                         RequestRecommendation rr = (RequestRecommendation) action;
                         Recommendations recommendations = getRecommendations(rr.getUser_id(), rr.getSize());
-                        result.setPerformative(ACLMessage.INFORM);
-                        try {
-                            getContentManager().fillContent(result, recommendations);
-                        } catch (Codec.CodecException e) {
-                            e.printStackTrace();
-                        } catch (OntologyException e) {
-                            e.printStackTrace();
+                        if (recommendations.getRecommendations().size() == 0) {
+                            System.out.println("No recommendation found, need to update model");
+                        } else {
+                            result.setPerformative(ACLMessage.INFORM);
+                            try {
+                                getContentManager().fillContent(result, recommendations);
+                            } catch (Codec.CodecException e) {
+                                e.printStackTrace();
+                            } catch (OntologyException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
