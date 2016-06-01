@@ -32,7 +32,7 @@ public class UserGUI extends JPanel {
         // Configure frame
         JFrame frame = new JFrame();
         frame.setTitle("User");
-        frame.setSize(800, 550);
+        frame.setSize(800, 600);
         frame.setResizable(false);
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -47,7 +47,7 @@ public class UserGUI extends JPanel {
         items_list.setBorder(BorderFactory.createTitledBorder("Item ID"));
         items_list.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
         JScrollPane listScroller = new JScrollPane(items_list);
-        listScroller.setPreferredSize(new Dimension(300, 400));
+        listScroller.setPreferredSize(new Dimension(300, 300));
 
         // Recommendations List
         String[] columns = {"Position", "Item ID", "Prediction"};
@@ -57,6 +57,7 @@ public class UserGUI extends JPanel {
         dtm.setColumnIdentifiers(columns);
         recommendations_table.setModel(dtm);
         JScrollPane tableScroller = new JScrollPane(recommendations_table);
+        tableScroller.setPreferredSize(new Dimension(300, 300));
 
         JLabel value_label = new JLabel("Rating:");
         // Value TextBox
@@ -114,22 +115,53 @@ public class UserGUI extends JPanel {
         JLabel size_label = new JLabel("Size:");
         this.size_text = new JTextField(10);
 
-        // Panel
-        this.add(listScroller);
-        this.add(tableScroller);
-        this.add(get_items_btn);
-        this.add(value_label);
-        this.add(value_text);
-        this.add(rate_btn);
-        this.add(size_label);
-        this.add(size_text);
-        this.add(recommend_btn);
-        this.add(user_label);
-        this.add(user_text);
-        this.add(trust_label);
-        this.add(trust_text);
-        this.add(change_trust_btn);
-        this.add(update_model_btn);
+        this.setLayout(new BorderLayout());
+
+
+        JPanel top = new JPanel();
+        this.add(top, BorderLayout.PAGE_START);
+        JPanel top_left = new JPanel();
+        top.add(top_left, BorderLayout.WEST);
+        top_left.setBorder(BorderFactory.createTitledBorder("Items not Rated"));
+        top_left.add(listScroller);
+        JPanel top_right = new JPanel();
+        top.add(top_right, BorderLayout.EAST);
+        top_right.setBorder(BorderFactory.createTitledBorder("Recommendations"));
+        top_right.add(tableScroller);
+
+
+        JPanel center = new JPanel();
+        JPanel left = new JPanel();
+        center.add(left, BorderLayout.WEST);
+        left.setBorder(BorderFactory.createTitledBorder("Rate Item"));
+        left.add(value_label);
+        left.add(value_text);
+        left.add(rate_btn);
+        left.add(Box.createHorizontalStrut(135));
+        JPanel right = new JPanel();
+        center.add(right, BorderLayout.EAST);
+        right.setBorder(BorderFactory.createTitledBorder("Get Recommendations"));
+        right.add(size_label);
+        right.add(size_text);
+        right.add(recommend_btn);
+        this.add(center, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel();
+        this.add(bottom, BorderLayout.PAGE_END);
+        JPanel bottom_left = new JPanel();
+        center.add(bottom_left, BorderLayout.WEST);
+        bottom_left.setBorder(BorderFactory.createTitledBorder("Change Trust"));
+        bottom_left.add(user_label);
+        bottom_left.add(user_text);
+        bottom_left.add(trust_label);
+        bottom_left.add(trust_text);
+        bottom_left.add(change_trust_btn);
+        bottom_left.add(Box.createHorizontalStrut(65));
+        JPanel bottom_right = new JPanel();
+        center.add(bottom_right, BorderLayout.EAST);
+        bottom_right.setBorder(BorderFactory.createTitledBorder("Get Items & Update Model"));
+        bottom_right.add(get_items_btn);
+        bottom_right.add(update_model_btn);
 
         Container contentPane = frame.getContentPane();
         contentPane.add(this);
