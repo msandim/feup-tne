@@ -32,7 +32,6 @@ public class User extends Agent {
     public void setup() {
         System.out.println("User: Setup");
 
-
         Object[] args = getArguments();
         if (args == null || args.length != 1) {
             System.err.println("Error parsing args: expected user_id");

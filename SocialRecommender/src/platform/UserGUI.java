@@ -194,6 +194,9 @@ public class UserGUI extends JPanel {
 
             DefaultListModel model = (DefaultListModel) items_list.getModel();
             model.remove(index);
+        } else {
+            JOptionPane.showMessageDialog(null, "Select an item to rate");
+            return;
         }
     }
 
